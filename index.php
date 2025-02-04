@@ -77,21 +77,23 @@
     </style>
 </head>
 <body>
-    <form action="register.php" method="POST" class="form-container">
-        <h2>Sign In</h2>
-        <div class="mb-3">
-            <input type="email" name="email" class="form-control" id="useremail" placeholder="Email" required> 
-        </div>
-        <div class="mb-3">
-            <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
-        </div>
-        <div class="d-grid gap-1">
-            <button type="submit" class="btn btn-primary">Sign In</button>
-        </div>
-        <div class="link-signup">
-            <span>Don't have an account? <a href="signup.php">Sign Up</a></span>
-        </div>
-    </form>
+
+<form action="./tester.php" method="POST" class="form-container">
+    <h2>Sign In</h2>
+    <div class="mb-3">
+        <input type="email" name="email" class="form-control" id="useremail" placeholder="Email" required> 
+    </div>
+    <div class="mb-3">
+        <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
+    </div>
+    <div class="d-grid gap-1">
+        <button type="submit" class="btn btn-primary">Sign In</button>
+    </div>
+    <div class="link-signup">
+        <span>Don't have an account? <a href="signup.php">Sign Up</a></span>
+    </div>
+</form>
+
 
     <!-- Bootstrap JavaScript Bundle (includes Popper.js) -->
     <script src="/styles/js/bootstrap.bundle.min.js"></script>

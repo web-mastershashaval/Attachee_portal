@@ -1,0 +1,238 @@
+
+         body.dark-mode {
+            background-color: #181818;
+            color: white;
+        }
+
+        .dark-mode .container {
+            background-color: #222222;
+        }
+
+        .dark-mode .btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .light-mode {
+            background-color: #f9f9f9;
+            color: black;
+        }
+        .side-bar {
+            background-color: rgb(19, 21, 32);
+            color: white;
+            padding: 10px 20px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            width: 15vw;
+            transition: transform 0.3s ease;
+        }
+
+        .side-bar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .side-bar li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-item {
+            list-style: none;
+            padding: 8px 15px;
+        }
+
+        .nav-item a:hover {
+            background-color: aliceblue;
+            color: black;
+        }
+
+        #profile-img {
+            border-radius: 100%;
+            width: 100px;
+            height: 100px;
+            vertical-align: middle;
+            margin-left: 34px;
+        }
+
+        #profile-img:hover {
+            padding: 50px;
+            transition: transform .2s;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+        .headings{
+            margin-top: 107px ;
+        }
+ 
+        #user-name,
+        #user-email {
+            margin-left: 15px;
+            align-content: center;
+        }
+
+        .profile {
+            margin: 72px 4px;
+            padding: 4px 20px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .main {
+            margin-left: 20vw;
+            padding: 20px;
+            padding-top: 80px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main.expanded {
+            margin-left: 0;
+        }
+
+        .content-col {
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        .top-nav-bar {
+            position: fixed;
+            top: 0;
+            left: 16vw;
+            width: 85vw;
+            background-color: whitesmoke;
+            z-index: 1000;
+            box-shadow: 0 4px 2px -2px gray;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            transition: left 0.3s ease;
+        }
+
+        .top-nav-bar.expanded {
+            left: 0;
+            width: 100vw;
+        }
+
+        .content-icons {
+            padding: 10px;
+            background-color: lightgray;
+            margin: 5px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        /* To keep the menu icon on the left */
+        .menu-icon {
+            margin-right: auto;
+        }
+
+        /* To keep the 'Such' and 'Message' icons on the right */
+        .right-icons {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* Circular Progress Bar */
+        .progress-container{
+            height: 35vh;
+            width: 260px;
+            box-shadow: 0 5px 3px -3px black;
+        }
+
+        .progress {
+            position: relative;
+            margin:34px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#ffcc00 0% 70%, #e6e6e6 70% 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 24px;
+            color: black;
+        }
+
+        .progress-text {
+            position: absolute;
+            font-size: 20px;
+            color: black;
+            font-weight: bold;
+        }
+
+        /* Projects Table Styling */
+        .table-container,
+        .intern-table {
+            height: auto; /* Adjusted height */
+            width: 100%; /* Ensure table stretches to fill available space */
+            box-shadow: 0 5px 3px -3px black;
+            margin-top: 150px;
+            table-layout: fixed; /* Ensures even distribution of columns */
+        }
+
+        .intern-table th, .intern-table td {
+            text-align: left;
+            padding: 16px;
+            word-wrap: break-word; /* Prevents overflow */
+        }
+
+         .intern-table tr:hover {
+            text-align: left;
+            background-color: blue;
+            color:#e6e6e6;
+        }
+
+        .intern-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        /* Flex container for positioning progress bar and projects table side by side */
+        .tables-container {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .tables-container .progress-container {
+            flex: 0 0 auto;
+            margin-right: 20px; /* Space between progress bar and table */
+        }
+
+        .tables-container .table-container {
+            flex: 1;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 16px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .charts-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chart-container {
+            width: 45%;
+        }
+
+        /* Activity Logs Table */
+        .activity-log-table th, .activity-log-table td {
+            text-align: left;
+            padding: 16px;
+        }
+
+        .activity-log-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        

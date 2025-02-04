@@ -1,245 +1,27 @@
+<?php include "dash.php"; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 
+    <link rel="stylesheet" href="/styles/spdash.css">
     <title>Admin Dashboard</title>
-    <style>
-        .side-bar {
-            background-color: rgb(19, 21, 32);
-            color: white;
-            padding: 10px 20px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            width: 15vw;
-            transition: transform 0.3s ease;
-        }
-
-        .side-bar.hidden {
-            transform: translateX(-100%);
-        }
-
-        .side-bar li a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .nav-item {
-            list-style: none;
-            padding: 8px 15px;
-        }
-
-        .nav-item a:hover {
-            background-color: aliceblue;
-            color: black;
-        }
-
-        #profile-img {
-            border-radius: 100%;
-            width: 100px;
-            height: 100px;
-            vertical-align: middle;
-            margin-left: 34px;
-        }
-
-        #profile-img:hover {
-            padding: 50px;
-            transition: transform .2s;
-            width: 200px;
-            height: 200px;
-            margin: 0 auto;
-        }
-        .headings{
-            margin-top: 107px ;
-        }
- 
-        #user-name,
-        #user-email {
-            margin-left: 15px;
-            align-content: center;
-        }
-
-        .profile {
-            margin: 72px 4px;
-            padding: 4px 20px;
-            align-items: center;
-            width: 100%;
-        }
-
-        .main {
-            margin-left: 20vw;
-            padding: 20px;
-            padding-top: 80px;
-            transition: margin-left 0.3s ease;
-        }
-
-        .main.expanded {
-            margin-left: 0;
-        }
-
-        .content-col {
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-        }
-
-        .top-nav-bar {
-            position: fixed;
-            top: 0;
-            left: 16vw;
-            width: 85vw;
-            background-color: whitesmoke;
-            z-index: 1000;
-            box-shadow: 0 4px 2px -2px gray;
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            transition: left 0.3s ease;
-        }
-
-        .top-nav-bar.expanded {
-            left: 0;
-            width: 100vw;
-        }
-
-        .content-icons {
-            padding: 10px;
-            background-color: lightgray;
-            margin: 5px;
-            text-align: center;
-            border-radius: 8px;
-        }
-
-        /* To keep the menu icon on the left */
-        .menu-icon {
-            margin-right: auto;
-        }
-
-        /* To keep the 'Such' and 'Message' icons on the right */
-        .right-icons {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-
-        /* Circular Progress Bar */
-        .progress-container{
-            height: 35vh;
-            width: 260px;
-            box-shadow: 0 5px 3px -3px black;
-        }
-
-        .progress {
-            position: relative;
-            margin:34px;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: conic-gradient(#ffcc00 0% 70%, #e6e6e6 70% 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-size: 24px;
-            color: black;
-        }
-
-        .progress-text {
-            position: absolute;
-            font-size: 20px;
-            color: black;
-            font-weight: bold;
-        }
-
-        /* Projects Table Styling */
-        .table-container,
-        .intern-table {
-            height: auto; /* Adjusted height */
-            width: 100%; /* Ensure table stretches to fill available space */
-            box-shadow: 0 5px 3px -3px black;
-            margin-top: 150px;
-            table-layout: fixed; /* Ensures even distribution of columns */
-        }
-
-        .intern-table th, .intern-table td {
-            text-align: left;
-            padding: 16px;
-            word-wrap: break-word; /* Prevents overflow */
-        }
-
-         .intern-table tr:hover {
-            text-align: left;
-            background-color: blue;
-            color:#e6e6e6;
-        }
-
-        .intern-table th {
-            background-color: #f4f4f4;
-            font-weight: bold;
-        }
-
-        /* Flex container for positioning progress bar and projects table side by side */
-        .tables-container {
-            display: flex;
-            align-items: stretch;
-        }
-
-        .tables-container .progress-container {
-            flex: 0 0 auto;
-            margin-right: 20px; /* Space between progress bar and table */
-        }
-
-        .tables-container .table-container {
-            flex: 1;
-            margin-top: 10px;
-        }
-        
-        th, td {
-            text-align: left;
-            padding: 16px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        .charts-container {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .chart-container {
-            width: 45%;
-        }
-
-        /* Activity Logs Table */
-        .activity-log-table th, .activity-log-table td {
-            text-align: left;
-            padding: 16px;
-        }
-
-        .activity-log-table th {
-            background-color: #f4f4f4;
-            font-weight: bold;
-        }
-    </style>
 </head>
 <body>
-    <div class="container-fluid">
+    <div class="<?php echo isset($_SESSION['selected_theme']) ? $_SESSION['selected_theme'] : 'light-mode'; ?> container-fluid">
         <div class="row">
             <!-- Profile & Sidebar Section -->
             <div class="col-md-3 side-bar" id="sidebar">
                 <div class="profile mb-3">
                     <img id="profile-img" src="/img/back.png" alt="profile">
-                    <h4 id="user-name" class="ms-3">Username</h4>
-                    <h6 id="user-email">usermail@gmail.com</h6>
+                    <h4 id="user-name" class="ms-3"><?php echo htmlspecialchars($username); ?></h4>
+                    <h6 id="user-email"><?php echo htmlspecialchars($email); ?></h6>
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="sp_dashboard.html">
+                        <a class="nav-link" href="sp_dashboard.php">
                             <i class="fas fa-tachometer-alt"></i> Dashboard
                         </a>
                     </li>
@@ -264,12 +46,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/message.html">
+                        <a class="nav-link" href="/message.php">
                             <i class="fas fa-envelope"></i> Messages
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="/settings.php">
                             <i class="fas fa-cogs"></i> Settings
                         </a>
                     </li>
@@ -370,115 +152,195 @@
                     </div>
 
                     <!-- Projects Table -->
-                    <div class="table-container">
-                        <h4>Projects</h4>
-                        <li><a href="">All projects</a></li>
-                        <button type="button" class="btn btn-success">Add Recode</button>
-                        <button type="button" class="btn btn-danger" >Delete Recode</button>
-                        <table class="projects-table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Id No</th>
-                                    <th>Attachee Name</th>
-                                    <th>Project Name</th>
-                                    <th>Deadline</th>
-                                    <th>Status</th>
-                                    <th>Faculty</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>dse-01-4117/2022</td>
-                                    <td>Samba Ernest</td>
-                                    <td>Attachee portal</td>
-                                    <td>21/4/2025</td>
-                                    <td>In progress</td>
-                                    <td>Software and Networking dpt</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>dse-01-4117/2022</td>
-                                    <td>Samba Ernest</td>
-                                    <td>Attachee portal</td>
-                                    <td>21/4/2025</td>
-                                    <td>In progress</td>
-                                    <td>Software and Networking dpt</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>dse-01-4117/2022</td>
-                                    <td>Samba Ernest</td>
-                                    <td>Attachee portal</td>
-                                    <td>21/4/2025</td>
-                                    <td>In progress</td>
-                                    <td>Software and Networking dpt</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <div class="table-container">
+                <h4>Projects</h4>
+                <li><a href="">All projects</a></li>
+                <button type="button" class="btn btn-success">Add Record</button>
+                <table class="projects-table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Id No</th>
+                            <th>Attachee Name</th>
+                            <th>Project Name</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                            <th>Faculty</th>
+                            <th>Actions</th> <!-- Action column for buttons -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be dynamically inserted by JavaScript -->
+                        <td><?= htmlspecialchars(isset($intern['id_no']) ? $intern['id_no'] : ''); ?></td>
+                    </tbody>
+                </table>  
 
-                <!-- Intern Table -->
-                <div class="col"><h2 id="users" class="headings">Users</h2></div>
-                <div class="table table-strip intern-table">
-                    <h4>Attachee/Interns</h4>
-                    <li><a href="">All interns/Attachees</a></li>
-                    <button type="button" class="btn btn-success">Add Recode</button>
-                    <button type="button" class="btn btn-danger" >Delete Recode</button>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Id No</th>
-                                <th>Role</th>
-                                <th>Gender</th>
-                                <th>Project</th>
-                                <th>Faculty</th>
-                                <th>Cont Start</th>
-                                <th>Cont End</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>John</td>
-                                <td>Doe</td>
-                                <td>dse-01-1234/2022</td>
-                                <td>Attachee</td>
-                                <td>Male</td>
-                                <td>Project A</td>
-                                <td>Software</td>
-                                <td>01/01/2025</td>
-                                <td>01/01/2026</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Jane</td>
-                                <td>Smith</td>
-                                <td>dse-01-5678/2022</td>
-                                <td>Intern</td>
-                                <td>Female</td>
-                                <td>Project B</td>
-                                <td>Networking</td>
-                                <td>02/01/2025</td>
-                                <td>02/01/2026</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Intern Table -->
+    <div class="col">
+        <h2 id="users" class="headings">Users</h2>
+    </div>
+    <div class="table table-strip intern-table">
+        <h4>Attachee/Interns</h4>
+        <li><a href="">All interns/Attachees</a></li>
+        <button id="addRecordBtn" type="button" class="btn btn-success">Add Record</button>
+        <table>
+     <thead>
+        <tr>
+            <th>No</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Id No</th>
+            <th>Role</th>
+            <th>Gender</th>
+            <th>Faculty</th>
+            <th>Cont Start</th>
+            <th>Cont End</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php 
+        $index = 1; 
+        foreach ($internsData as $intern): 
+        ?>
+            <tr>
+                <td><?= $index++; ?></td>
+                <td><?= htmlspecialchars(isset($intern['first_name']) ? $intern['first_name'] : ''); ?></td>
+                <td><?= htmlspecialchars(isset($intern['last_name']) ? $intern['last_name'] : ''); ?></td>
+                <td><?= htmlspecialchars(isset($intern['id_no']) ? $intern['id_no'] : ''); ?></td>
+                <td><?= htmlspecialchars(isset($intern['role']) ? $intern['role'] : ''); ?></td>
+                <td><?= htmlspecialchars(isset($intern['gender']) ? $intern['gender'] : ''); ?></td>
+                <td><?= htmlspecialchars(isset($intern['faculty']) ? $intern['faculty'] : ''); ?></td>
+                <td><?= htmlspecialchars(isset($intern['contact_start']) ? $intern['contact_start'] : ''); ?></td>
+                <td><?= htmlspecialchars(isset($intern['contact_end']) ? $intern['contact_end'] : ''); ?></td>
+                <td>
+                    <?php if (empty($intern['project'])): ?>
+                        <button class="btn btn-primary" onclick="openAssignModal('<?= htmlspecialchars($intern['id_no']); ?>')">Assign Intern</button>
+                    <?php else: ?>
+                        <span>Assigned to Project</span>
+                    <?php endif; ?>
+                    <button class="btn btn-danger" onclick="openDeleteModal('<?= htmlspecialchars($intern['id_no']); ?>')">Delete</button>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+    </div>
             </div>
         </div>
     </div>
+    
+
+    <!-- Add Intern Modal -->
+<div class="modal" id="addInternModal" tabindex="-1" role="dialog" aria-labelledby="addInternModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addInternModalLabel">Add Intern</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addInternForm" action="addintern.php" method="POST">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" class="form-control" id="firstName" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="idNo">ID No</label>
+                        <input type="text" class="form-control" id="idNo" name="id_no" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <input type="text" class="form-control" id="role" name="role" required>
+                    </div>
+                    <div class="form-group">y>
+                    <!-- Data will be dynamically inserted by JavaScript -->
+                        <label for="gender">Gender</label>
+                        <input type="text" class="form-control" id="gender" name="gender" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="faculty">Faculty</label>
+                        <input type="text" class="form-control" id="faculty" name="faculty" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactStart">Contact Start</label>
+                        <input type="date" class="form-control" id="contactStart" name="contact_start" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEnd">Contact End</label>
+                        <input type="date" class="form-control" id="contactEnd" name="contact_end" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save Intern</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Intern Button -->
+<button id="addRecordBtn" type="button" class="btn btn-success" data-toggle="modal" data-target="#addInternModal">Add Record</button>
+
+<!-- Delete Intern Modal -->
+<div class="modal" id="deleteInternModal" tabindex="-1" role="dialog" aria-labelledby="deleteInternModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteInternModalLabel">Delete Intern</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this intern?</p>
+                <form id="deleteInternForm" method="POST">
+                    <input type="hidden" name="intern_id" id="internId">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <!-- Modal for Assigning Intern to a Project -->
+<div class="modal" id="assignProjectModal" tabindex="-1" role="dialog" aria-labelledby="assignProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignProjectModalLabel">Assign Project to Intern</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="assignProjectForm">
+                    <div class="form-group">
+                        <label for="projectSelect">Select Project</label>
+                        <select class="form-control" id="projectSelect" name="project">
+                            <!-- Projects will be populated dynamically using JavaScript -->
+                        </select>
+                    </div>
+                    <input type="hidden" id="internId" name="intern_id">
+                    <button type="submit" class="btn btn-primary">Assign Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <!-- Optional Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     
     <script>
         // Toggle Sidebar
@@ -502,6 +364,50 @@
             }
         });
      });
+
+       // Function to open the delete confirmation modal
+    function openDeleteModal(internId) {
+        // Set the intern_id value in the hidden field
+        document.getElementById('internId').value = internId;
+        // Show the modal
+        $('#deleteInternModal').modal('show');
+    }
+
+     // Open the Add Intern modal when the "Add Record" button is clicked
+     $('#addRecordBtn').click(function() {
+        $('#addInternModal').modal('show');
+    });
+
+    // Optional: If you want to handle form submission via Ajax to prevent a full page reload
+    $('#addInternForm').submit(function(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // Gather form data
+    var formData = $(this).serialize();
+    
+    // Log the form data to the console for debugging
+    console.log(formData);
+
+    // Submit the form data using Ajax
+    $.ajax({
+        url: 'addintern.php', // The PHP file to handle form submission
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            console.log(response);  // Log the response from the server
+            var result = JSON.parse(response);
+            if (result.success) {
+                alert("Intern added successfully!");
+                location.reload(); // Reload the page to show the updated list
+            } else {
+                alert("Failed to add intern: " + result.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            alert("An error occurred: " + error);
+        }
+    });
+});
 
         // Data for Intern Performance Chart
         const internPerformanceChart = document.getElementById('internPerformanceChart').getContext('2d');
@@ -541,6 +447,131 @@
                 }]
             }
         });
+
+    fetch('fetch_projects.php')
+    .then(response => response.json())
+    .then(data => {
+        // Check if there is an error in the data
+        if (data.error) {
+            console.error(data.error);
+            alert(data.error); // Display the error on the frontend
+            return;
+        }
+
+        const tableBody = document.querySelector('.projects-table tbody');
+        tableBody.innerHTML = ''; // Clear existing rows before adding new ones
+
+        // If no data is available
+        if (data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="8">No projects available.</td></tr>';
+            return;
+        }
+
+        // Loop through the data and create table rows
+        data.forEach((project, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>require 'vendor/autoload.php';
+                <td>${project.id_no}</td>
+                <td>${project.attachee_name}</td>
+                <td>${project.project_name}</td>
+                <td>${project.deadline}</td>
+                <td>${project.status}</td>
+                <td>${project.faculty}</td>
+                <td><button class="btn btn-primary">View Details</button></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching project data:', error);
+        const tableBody = document.querySelector('.projects-table tbody');
+        tableBody.innerHTML = '<tr><td colspan="8">Error loading data.</td></tr>';
+    });
+   
+
+ // Open the Assign Project Modal
+ function openAssignModal(internId) {
+    // Populate the modal with intern data and project options
+    document.getElementById('internId').value = internId;
+
+    // Fetch projects from the backend and populate the dropdown
+    fetch('/supavisor/get_projects.php')
+        .then(response => response.json())
+        .then(data => {
+            const projectSelect = document.getElementById('projectSelect');
+            data.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id; // MongoDB project _id
+                option.textContent = project.name;
+                projectSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching projects:', error));
+
+    // Show the modal
+    $('#assignProjectModal').modal('show');
+}
+
+
+
+// Open the modal and load projects when the "Assign Intern" button is clicked
+function openAssignModal(internId) {
+    // Set the intern ID in the hidden input field
+    document.getElementById('internId').value = internId;
+    
+    // Load the projects dynamically
+    loadProjects();
+
+    // Show the modal
+    const modal = document.getElementById('assignProjectModal');
+    modal.style.display = 'block';
+}
+
+// Close the modal
+function closeModal() {
+    const modal = document.getElementById('assignProjectModal');
+    modal.style.display = 'none';
+}
+
+document.getElementById('assignProjectForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const internId = document.getElementById('internId').value;
+    const projectId = document.getElementById('projectSelect').value;
+
+    if (projectId === "") {
+        alert("Please select a project!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('intern_id', internId);
+    formData.append('project_id', projectId);
+
+    // Send the data to the server
+    fetch('/supavisor/assign_project.php', { // Create a new PHP script to handle the update
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Project assigned successfully!");
+            // Optionally refresh the page or close the modal
+            location.reload(); // This will reload the page to reflect changes
+        } else {
+            alert("Error assigning project!");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Something went wrong, please try again.");
+    });
+});
+
+
     </script>
+
 </body>
 </html>

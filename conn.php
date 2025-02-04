@@ -1,16 +1,21 @@
 <?php
-$servername = "localhost";
-$db_name = "portal";
-$username = "root";
-$password = "sambaman";
+// MongoDB connection setup
+require 'vendor/autoload.php';  // Make sure MongoDB client is autoloaded
 
-// Create connection
-$conn = mysqli_connect($servername, $username, $password, $db_name);
+use MongoDB\Client;
 
-// Check connection
-if (mysqli_connect_errno()) {
-    // Use mysqli_connect_errno() to get a more detailed error
-    die("Connection failed: " . mysqli_connect_error());
+// Create a new MongoDB client instance
+$mongoClient = new Client("mongodb://localhost:27017");  // Ensure MongoDB is running on localhost
+
+// Select the 'portal' database (replace 'portal' with your database name if it's different)
+$database = $mongoClient->portal;  
+
+// Select the 'users' collection (replace 'users' with your collection name if needed)
+$usersCollection = $database->users;  
+
+// Verify the connection and collection setup
+if (!$usersCollection) {
+    echo "Error: MongoDB collection not found!";
+    exit;  // Stop script execution if collection is not found
 }
-
-echo "Connected successfully";  // If connection is successful, this will be printed
+?>

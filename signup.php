@@ -1,5 +1,5 @@
 <?php
-include_once"conn.php";
+ include_once"./conn.php";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,33 +27,37 @@ include_once"conn.php";
 
   <div class="registration-form">
     <h3 class="text-center mb-4">User Registration</h3>
-    <form id="registerForm" action="register.php" method="POST">
-      <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="username" placeholder="Enter username" required>
-        <div class="invalid-feedback">Username is required.</div>
-      </div>
+    <form id="registerForm" action="./register.php" method="POST">
+  <div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
+    <div class="invalid-feedback">Username is required.</div>
+  </div>
 
-      <div class="mb-3">
-        <label for="email" class="form-label">Email address</label>
-        <input type="email" class="form-control" id="email" placeholder="Enter email" required>
-        <div class="invalid-feedback">Please provide a valid email address.</div>
-      </div>
+  <div class="mb-3">
+    <label for="email" class="form-label">Email address</label>
+    <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+    <div class="invalid-feedback">Please provide a valid email address.</div>
+  </div>
 
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" placeholder="Enter password" required>
-        <div class="invalid-feedback">Password is required.</div>
-      </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Password</label>
+    <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+    <div class="invalid-feedback">Password is required.</div>
+  </div>
 
-      <div class="mb-3">
-        <label for="confirmPassword" class="form-label">Confirm Password</label>
-        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm password" required>
-        <div class="invalid-feedback">Please confirm your password.</div>
-      </div>
+  <div class="mb-3">
+    <label for="confirmPassword" class="form-label">Confirm Password</label>
+    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+    <div class="invalid-feedback">Please confirm your password.</div>
+  </div>
 
-      <button type="submit" class="btn btn-primary w-100">Register</button>
-    </form>
+  <button type="submit" class="btn btn-primary w-100">Register</button>
+
+  <div class="link-signup">
+        <span>Already have an account? <a href="login.php">Sign In</a></span>
+    </div>
+</form>
   </div>
 
   <!-- Bootstrap 5 JS (Optional for Bootstrap features) -->
