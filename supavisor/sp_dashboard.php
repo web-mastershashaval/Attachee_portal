@@ -1,4 +1,7 @@
-<?php include "dash.php"; ?>
+<?php
+include"./dash.php"; 
+include_once "./header.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 
-    <link rel="stylesheet" href="/styles/spdash.css">
+    <link rel="stylesheet" href="../styles/spdash.css">
     <title>Admin Dashboard</title>
 </head>
 <body>
@@ -14,8 +17,8 @@
         <div class="row">
             <!-- Profile & Sidebar Section -->
             <div class="col-md-3 side-bar" id="sidebar">
-                <div class="profile mb-3">
-                    <img id="profile-img" src="/img/back.png" alt="profile">
+                 <div class="profile mb-3">
+                 <img id="profile-img" src="../uploads/profile_pictures/"<?php echo htmlspecialchars($profile_picture); ?>" alt="profile">
                     <h4 id="user-name" class="ms-3"><?php echo htmlspecialchars($username); ?></h4>
                     <h6 id="user-email"><?php echo htmlspecialchars($email); ?></h6>
                 </div>
@@ -46,17 +49,17 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/message.php">
+                        <a class="nav-link" href="../message.php">
                             <i class="fas fa-envelope"></i> Messages
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/settings.php">
+                        <a class="nav-link" href="../settings.php">
                             <i class="fas fa-cogs"></i> Settings
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link"  href="../logout.php">
                             <i class="fas fa-sign-out-alt"></i> Log out
                         </a>
                     </li>
@@ -65,14 +68,15 @@
             
             <!-- Main Content Section -->
             <div class="col-md-9 main" id="mainContent">
-                <div class="col"><h2>Intern/Attachee Management Dashboard</h2></div>
-                <div class="row top-nav-bar" id="topNavBar">
+            <div class="row top-nav-bar" id="topNavBar">
                     <div class="content-icons menu-icon fas fa-bars" id="menuIcon"></div>
                     <div class="right-icons">
                         <div class="content-icons fas fa-search"></div>
-                        <div class="fas fa-envelope content-icons"></div>
+                        <!-- <div class="fas fa-envelope content-icons"></div> -->
                     </div>
                 </div>
+                <div class="col"><h2>Intern/Attachee Management Dashboard</h2></div>
+                
                 <div class="row mt-5">
                     <div class="col-sm-3 content-col bg-primary text-white">
                         <h6>Total Interns</h6>
@@ -105,40 +109,13 @@
                     </div>
                 </div>
 
-                <!-- Activity Logs Section -->
-                <div class="col"><h2 id="reports" class="headings">Activity Logs</h2></div>
-                <div class="table-container mt-4">
-                    <table class="table activity-log-table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>User</th>
-                                <th>Action</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>2025-01-25 12:45:00</td>
-                                <td>Admin</td>
-                                <td>Login</td>
-                                <td>Admin logged into the dashboard</td>
-                            </tr>
-                            <tr>
-                                <td>2025-01-25 13:30:00</td>
-                                <td>John Doe</td>
-                                <td>Task Update</td>
-                                <td>John Doe updated Task #102</td>
-                            </tr>
-                            <tr>
-                                <td>2025-01-25 14:00:00</td>
-                                <td>Admin</td>
-                                <td>Project Added</td>
-                                <td>Added a new project: Attachee Portal</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <!-- Activity Logs Section -->
+                    <div class="col"><h2 id="reports" class="headings">Activity Logs</h2></div>
+                    <div class="table-container mt-4">
+                        <!-- Display the activity logs -->
+                        <?php include('get_activity_logs.php'); ?>
+                    </div>
+
                 <div class="col"><h2 id="projects" class="headings">Projects</h2></div>
                 <!-- Projects Table -->
                 <div class="tables-container mt-4">
@@ -151,29 +128,64 @@
                         </div>
                     </div>
 
+                    <?php
+                        // Include the database connection
+                        include('../conn.php');
+
+                        // Initialize success and error messages
+                        $successMessage = '';
+                        $errorMessage = '';
+
+                        // Check if the form is submitted
+                        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['project_name'])) {
+                            $project_name = $_POST['project_name'];
+
+                            // Sanitize the input to prevent SQL injection
+                            $project_name = $conn->real_escape_string($project_name);
+
+                            // Insert the project into the database
+                            $sql = "INSERT INTO projects (name) VALUES ('$project_name')";
+
+                            if ($conn->query($sql) === TRUE) {
+                                $successMessage = "Project added successfully!";
+                            } else {
+                                $errorMessage = "Error: " . $conn->error;
+                            }
+                        }
+                        ?>
                     <!-- Projects Table -->
                 <div class="table-container">
                 <h4>Projects</h4>
+                <!-- Display the data -->
+                <button id="addProjectBtn" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">Add Project</button>
+                    <!-- Display success or error messages -->
+                    <?php if ($errorMessage): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?= htmlspecialchars($errorMessage); ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($successMessage): ?>
+                        <div class="alert alert-success" role="alert">
+                            <?= htmlspecialchars($successMessage); ?>
+                        </div>
+                    <?php endif; ?>
                 <li><a href="">All projects</a></li>
-                <button type="button" class="btn btn-success">Add Record</button>
                 <table class="projects-table table-striped">
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>Id No</th>
                             <th>Attachee Name</th>
                             <th>Project Name</th>
                             <th>Deadline</th>
                             <th>Status</th>
                             <th>Faculty</th>
-                            <th>Actions</th> <!-- Action column for buttons -->
+                            <th>Actions</th> 
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Data will be dynamically inserted by JavaScript -->
-                        <td><?= htmlspecialchars(isset($intern['id_no']) ? $intern['id_no'] : ''); ?></td>
+                        <?php include "code.php"; ?>
                     </tbody>
-                </table>  
+                </table>
 
             <!-- Intern Table -->
     <div class="col">
@@ -214,11 +226,6 @@
                 <td><?= htmlspecialchars(isset($intern['contact_start']) ? $intern['contact_start'] : ''); ?></td>
                 <td><?= htmlspecialchars(isset($intern['contact_end']) ? $intern['contact_end'] : ''); ?></td>
                 <td>
-                    <?php if (empty($intern['project'])): ?>
-                        <button class="btn btn-primary" onclick="openAssignModal('<?= htmlspecialchars($intern['id_no']); ?>')">Assign Intern</button>
-                    <?php else: ?>
-                        <span>Assigned to Project</span>
-                    <?php endif; ?>
                     <button class="btn btn-danger" onclick="openDeleteModal('<?= htmlspecialchars($intern['id_no']); ?>')">Delete</button>
                 </td>
             </tr>
@@ -226,12 +233,12 @@
     </tbody>
 </table>
     </div>
-            </div>
-        </div>
+    </div>
+    </div>
     </div>
     
 
-    <!-- Add Intern Modal -->
+<!-- Add Intern Modal -->
 <div class="modal" id="addInternModal" tabindex="-1" role="dialog" aria-labelledby="addInternModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -242,7 +249,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="addInternForm" action="addintern.php" method="POST">
+                <form id="addInternForm" action="" method="POST">
                     <div class="form-group">
                         <label for="firstName">First Name</label>
                         <input type="text" class="form-control" id="firstName" name="first_name" required>
@@ -259,8 +266,7 @@
                         <label for="role">Role</label>
                         <input type="text" class="form-control" id="role" name="role" required>
                     </div>
-                    <div class="form-group">y>
-                    <!-- Data will be dynamically inserted by JavaScript -->
+                    <div class="form-group">
                         <label for="gender">Gender</label>
                         <input type="text" class="form-control" id="gender" name="gender" required>
                     </div>
@@ -283,9 +289,6 @@
     </div>
 </div>
 
-<!-- Add Intern Button -->
-<button id="addRecordBtn" type="button" class="btn btn-success" data-toggle="modal" data-target="#addInternModal">Add Record</button>
-
 <!-- Delete Intern Modal -->
 <div class="modal" id="deleteInternModal" tabindex="-1" role="dialog" aria-labelledby="deleteInternModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -298,7 +301,7 @@
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this intern?</p>
-                <form id="deleteInternForm" method="POST">
+                <form id="deleteInternForm" action="delete_intern.php" method="POST">
                     <input type="hidden" name="intern_id" id="internId">
                     <button type="submit" class="btn btn-danger">Delete</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -308,7 +311,41 @@
     </div>
 </div>
 
-  <!-- Modal for Assigning Intern to a Project -->
+<?php
+// Include the database connection
+include('../conn.php');
+
+// Check if form data is received
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['intern_id']) && isset($_POST['project_id'])) {
+    $internId = $_POST['intern_id'];  // Intern ID (id_no)
+    $projectId = $_POST['project_id']; // Project ID
+
+    // Sanitize inputs to prevent SQL injection
+    $internId = $conn->real_escape_string($internId);
+    $projectId = $conn->real_escape_string($projectId);
+
+    // SQL query to assign project to intern
+    $sql = "UPDATE interns SET project_id = '$projectId' WHERE id_no = '$internId'";
+
+    if ($conn->query($sql) === TRUE) {
+        echo "Project assigned successfully.";
+
+        // Optionally, log the activity here
+        log_activity($username, 'Assign Project', "Assigned project ID $projectId to intern ID $internId");
+        
+        // Redirect back to the dashboard or refresh the page
+        header('Location: sp_dashboard.php');
+        exit;
+    } else {
+        echo "Error: " . $conn->error;
+    }
+} else {
+    echo "Missing intern ID or project ID.";
+}
+?>
+
+
+<!-- Modal for Assigning Intern to a Project -->
 <div class="modal" id="assignProjectModal" tabindex="-1" role="dialog" aria-labelledby="assignProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -319,11 +356,19 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="assignProjectForm">
+                <form id="assignProjectForm" action="assign_projects.php" method="POST">
                     <div class="form-group">
                         <label for="projectSelect">Select Project</label>
-                        <select class="form-control" id="projectSelect" name="project">
-                            <!-- Projects will be populated dynamically using JavaScript -->
+                        <select class="form-control" id="projectSelect" name="project_id">
+                            <?php
+                                // Fetch available projects from the database
+                                $projects = []; // Replace this with your actual fetching of projects from the database
+                                $sql = "SELECT id, name FROM projects"; // Sample SQL query, replace it with your actual one
+                                $result = $conn->query($sql);
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<option value='" . htmlspecialchars($row['id']) . "'>" . htmlspecialchars($row['name']) . "</option>";
+                                }
+                            ?>
                         </select>
                     </div>
                     <input type="hidden" id="internId" name="intern_id">
@@ -335,36 +380,48 @@
 </div>
 
 
-    <!-- Optional Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Add Project Modal -->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProjectModalLabel">Add New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProjectForm" method="POST">
+                    <div class="mb-3">
+                        <label for="project_name" class="form-label">Project Name</label>
+                        <input type="text" name="project_name" id="project_name" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Project</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+ <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Popper.js (Bootstrap dependency) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Other JS libraries (e.g., Chart.js) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Your custom JS script (spjs.js) -->
+<script src="../styles/spjs.js"></script>
+
     
     
     <script>
-        // Toggle Sidebar
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        const topNavBar = document.getElementById('topNavBar');
-        const menuIcon = document.getElementById('menuIcon');
-
-        menuIcon.addEventListener('click', () => {
-            sidebar.classList.toggle('hidden');
-            mainContent.classList.toggle('expanded');
-            topNavBar.classList.toggle('expanded');
-        });
-
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-     });
-
        // Function to open the delete confirmation modal
     function openDeleteModal(internId) {
         // Set the intern_id value in the hidden field
@@ -378,33 +435,18 @@
         $('#addInternModal').modal('show');
     });
 
-    // Optional: If you want to handle form submission via Ajax to prevent a full page reload
-    $('#addInternForm').submit(function(event) {
-    event.preventDefault(); // Prevent the default form submission
+    $('#addInternForm').on('submit', function(e) {
+    e.preventDefault(); // Prevent form from submitting normally
 
-    // Gather form data
-    var formData = $(this).serialize();
-    
-    // Log the form data to the console for debugging
-    console.log(formData);
-
-    // Submit the form data using Ajax
+    // AJAX request to submit the form
     $.ajax({
-        url: 'addintern.php', // The PHP file to handle form submission
-        type: 'POST',
-        data: formData,
+        type: "POST",
+        url: "dash.php",
+        data: $(this).serialize(),
         success: function(response) {
-            console.log(response);  // Log the response from the server
-            var result = JSON.parse(response);
-            if (result.success) {
-                alert("Intern added successfully!");
-                location.reload(); // Reload the page to show the updated list
-            } else {
-                alert("Failed to add intern: " + result.message);
-            }
-        },
-        error: function(xhr, status, error) {
-            alert("An error occurred: " + error);
+            alert('Intern added successfully!');
+            $('#addInternModal').modal('hide'); // Close the modal
+            location.reload(); // Refresh the page to show new data
         }
     });
 });
@@ -448,128 +490,31 @@
             }
         });
 
-    fetch('fetch_projects.php')
-    .then(response => response.json())
-    .then(data => {
-        // Check if there is an error in the data
-        if (data.error) {
-            console.error(data.error);
-            alert(data.error); // Display the error on the frontend
-            return;
-        }
-
-        const tableBody = document.querySelector('.projects-table tbody');
-        tableBody.innerHTML = ''; // Clear existing rows before adding new ones
-
-        // If no data is available
-        if (data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="8">No projects available.</td></tr>';
-            return;
-        }
-
-        // Loop through the data and create table rows
-        data.forEach((project, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>require 'vendor/autoload.php';
-                <td>${project.id_no}</td>
-                <td>${project.attachee_name}</td>
-                <td>${project.project_name}</td>
-                <td>${project.deadline}</td>
-                <td>${project.status}</td>
-                <td>${project.faculty}</td>
-                <td><button class="btn btn-primary">View Details</button></td>
-            `;
-            tableBody.appendChild(row);
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching project data:', error);
-        const tableBody = document.querySelector('.projects-table tbody');
-        tableBody.innerHTML = '<tr><td colspan="8">Error loading data.</td></tr>';
-    });
    
-
- // Open the Assign Project Modal
- function openAssignModal(internId) {
-    // Populate the modal with intern data and project options
+    function openAssignModal(internId) {
+    // Set the internId in the hidden field in the modal
     document.getElementById('internId').value = internId;
-
-    // Fetch projects from the backend and populate the dropdown
-    fetch('/supavisor/get_projects.php')
-        .then(response => response.json())
-        .then(data => {
-            const projectSelect = document.getElementById('projectSelect');
-            data.forEach(project => {
-                const option = document.createElement('option');
-                option.value = project.id; // MongoDB project _id
-                option.textContent = project.name;
-                projectSelect.appendChild(option);
-            });
-        })
-        .catch(error => console.error('Error fetching projects:', error));
 
     // Show the modal
     $('#assignProjectModal').modal('show');
 }
 
 
-
-// Open the modal and load projects when the "Assign Intern" button is clicked
-function openAssignModal(internId) {
-    // Set the intern ID in the hidden input field
-    document.getElementById('internId').value = internId;
-    
-    // Load the projects dynamically
-    loadProjects();
-
-    // Show the modal
-    const modal = document.getElementById('assignProjectModal');
-    modal.style.display = 'block';
-}
-
 // Close the modal
 function closeModal() {
-    const modal = document.getElementById('assignProjectModal');
-    modal.style.display = 'none';
+    $('#assignProjectModal').modal('hide');
 }
 
-document.getElementById('assignProjectForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+  // Get the button that opens the modal
+ var addRecordBtn = document.getElementById('addProjectBtn');
 
-    const internId = document.getElementById('internId').value;
-    const projectId = document.getElementById('projectSelect').value;
+// Get the modal
+var addProjectModal = new bootstrap.Modal(document.getElementById('addProjectModal'));
 
-    if (projectId === "") {
-        alert("Please select a project!");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('intern_id', internId);
-    formData.append('project_id', projectId);
-
-    // Send the data to the server
-    fetch('/supavisor/assign_project.php', { // Create a new PHP script to handle the update
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Project assigned successfully!");
-            // Optionally refresh the page or close the modal
-            location.reload(); // This will reload the page to reflect changes
-        } else {
-            alert("Error assigning project!");
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("Something went wrong, please try again.");
-    });
+// When the "Add Project" button is clicked, show the modal
+addProjectBtn.addEventListener('click', function() {
+    addProjectModal.show();  // This opens the modal programmatically
 });
-
 
     </script>
 

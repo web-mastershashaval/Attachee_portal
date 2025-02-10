@@ -1,305 +1,252 @@
+<?php 
+include "../conn.php"; 
+session_start(); // Start the session
+
+// Check if the user is logged in by verifying the session variable
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page if the user is not logged in
+    header("Location: login.php");
+    exit();
+}
+include "../supavisor/header.php";
+include "tasks.php";
+// Retrieve user data from session, with fallbacks in case they aren't set
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Guest';  // Fallback if username is not set
+$email = isset($_SESSION['email']) ? $_SESSION['email'] : 'No email provided'; // Fallback if email is not set
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg'; // Fallback if profile picture is not set
+
+// Debugging - check the session contents
+// echo '<pre>';
+// var_dump($_SESSION); // Prints all session data for debugging
+// echo '</pre>';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attachee Dashboard</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    /* Global Styles */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f6f9;
-  color: #333;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
-.dashboard {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-header {
-  background-color: #4CAF50;
-  color: white;
-  padding: 15px;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-h1 {
-  margin: 0;
-}
-
-.navbar {
-  display: flex;
-  gap: 20px;
-}
-
-.navbar a {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-}
-
-.navbar a:hover {
-  text-decoration: underline;
-}
-
-.notifications {
-  font-size: 14px;
-}
-
-main {
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  flex-grow: 1;
-}
-
-.dashboard-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.dashboard-main .task-list, 
-.dashboard-main .daily-log,
-.dashboard-main .time-tracking,
-.dashboard-main .upcoming-tasks {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-textarea {
-  width: 100%;
-  height: 150px;
-  padding: 10px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  resize: none;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-.sidebar {
-  width: 250px;
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar ul li {
-  margin-bottom: 10px;
-}
-
-.sidebar ul li a {
-  text-decoration: none;
-  color: #4CAF50;
-}
-
-footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  padding: 15px;
-}
-
-footer a {
-  color: #fff;
-  text-decoration: none;
-}
-
-footer a:hover {
-  text-decoration: underline;
-}
-
-  </style>
+    <!-- FontAwesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/spdash.css">
 </head>
+
 <body>
-  <div class="dashboard">
-    <!-- Header with navigation and notifications -->
-    <header>
-      <div class="header-content">
-        <h1>Attachee Dashboard</h1>
-        <nav class="navbar">
-          <a href="#">Home</a>
-          <a href="#">Profile</a>
-          <a href="#">Tasks</a>
-          <a href="#">Feedback</a>
-          <a href="#">Resources</a>
-          <a href="#">Messages</a>
-        </nav>
-        <div class="notifications">
-          <span>🔔 3 New Notifications</span>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Profile & Sidebar Section -->
+            <div class="col-md-3 side-bar" id="sidebar">
+                <div class="profile mb-3">
+                    <img id="profile-img" src="../uploads/profile_pictures/<?php echo htmlspecialchars($profile_picture); ?>" alt="profile">
+                    <h4 id="user-name" class="ms-3"><?php echo htmlspecialchars($username); ?></h4>
+                    <h6 id="user-email"><?php echo htmlspecialchars($email); ?></h6>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.php">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tasks">
+                            <i class="fas fa-tasks"></i> My Tasks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#projects">
+                            <i class="fas fa-project-diagram"></i> My Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#notifications">
+                            <i class="fas fa-bell"></i> Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./message.php">
+                            <i class="fas fa-envelope"></i> Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="settings.php">
+                            <i class="fas fa-cogs"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../logout.php">
+                            <i class="fas fa-sign-out-alt"></i> Log out
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Main Content Section -->
+            <div class="col-md-9 main" id="mainContent">
+            <div class="row top-nav-bar" id="topNavBar">
+                   
+                    <div class="right-icons">
+                         <div class="content-icons menu-icon fas fa-bars" id="menuIcon"></div>
+                        <div class="content-icons fas fa-search"></div>
+                        <!-- <div class="fas fa-envelope content-icons"></div> -->
+                    </div>
+                </div>
+                <div class="col"><h2>Welcome to your Dashboard</h2></div>
+
+                <div class="row mt-5">
+                <div class="col-sm-4 content-col bg-primary text-white">
+                    <h6>Total Tasks</h6>
+                    <h5><?php echo $total_tasks; ?></h5> <!-- Display total tasks -->
+                </div>
+                <div class="col-sm-4 content-col bg-success text-white">
+                    <h6>Completed Tasks</h6>
+                    <h5><?php echo $completed_tasks; ?></h5> <!-- Display completed tasks -->
+                </div>
+                <div class="col-sm-4 content-col bg-warning text-dark">
+                    <h6>Pending Tasks</h6>
+                    <h5><?php echo $pending_tasks; ?></h5> <!-- Display pending tasks -->
+                </div>
+                </div>
+
+               <!-- Tasks Section -->
+                <div class="col"><h2 id="tasks" class="headings">My Tasks</h2></div>
+                <div class="table-container mt-4">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Task Name</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // Include the database connection and fetch tasks for the logged-in user
+                            include('../conn.php');  // Make sure to include your connection file
+                            
+
+                            // Assuming the user ID is stored in the session
+                            $user_id = $_SESSION['user_id'];
+
+                            // Query to fetch tasks for the logged-in user
+                            $query = "SELECT task_name, deadline, status FROM tasks WHERE user_id = ?";
+                            $stmt = $conn->prepare($query);
+                            $stmt->bind_param("i", $user_id);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+
+                            if ($result->num_rows > 0) {
+                                // Loop through tasks and display them
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . htmlspecialchars($row['task_name']) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['deadline']) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['status']) . "</td>";
+                                    echo "<td><button class='btn btn-info'>View</button></td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                // No tasks found for the user
+                                echo "<tr><td colspan='4'>No tasks assigned.</td></tr>";
+                            }
+
+                            // Close the connection
+                            $conn->close();
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Projects Section -->
+                <div class="col"><h2 id="projects" class="headings">My Projects</h2></div>
+                <div class="table-container mt-4">
+                <?php
+                    // Initialize error and success message variables
+                    $errorMessage = '';
+                    $successMessage = '';
+
+                    // Your existing PHP logic here, where you might set these variables
+                    // For example, if you have some conditions for success or failure, you can assign values to them:
+
+                    // Example of setting the variables
+                    if (isset($someConditionThatFails)) {
+                        $errorMessage = "There was an error processing your request.";
+                    }
+
+                    if (isset($someConditionThatSucceeds)) {
+                        $successMessage = "Your action was successful!";
+                    }
+                    ?>
+                                        <!-- Display success or error messages -->
+                    <?php if ($errorMessage): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?= htmlspecialchars($errorMessage); ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($successMessage): ?>
+                        <div class="alert alert-success" role="alert">
+                            <?= htmlspecialchars($successMessage); ?>
+                        </div>
+                    <?php endif; ?>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id No</th>
+                            <th>Project Name</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                            <th>Faculty</th>
+                            <th>Actions</th> 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php include "projects.php"; ?>
+                    </tbody>
+                </table>
+
+                <!-- Notifications Section -->
+                <div class="col"><h2 id="notifications" class="headings">Notifications</h2></div>
+                <div class="table-container mt-4">
+                    <ul>
+                        <!-- Replace with PHP to display notifications -->
+                        <li>New task assigned: Task 1</li>
+                        <li>Project update: Project 2 completed</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-      </div>
-    </header>
+    </div>
 
-    <!-- Main content area -->
-    <main>
-      <section class="dashboard-main">
-        <!-- Current Tasks -->
-        <div class="task-list">
-          <h2>Current Tasks</h2>
-          <ul id="task-list">
-            <!-- Dynamic content for tasks -->
-          </ul>
-        </div>
-
-        <!-- Daily Log Section -->
-        <div class="daily-log">
-          <h2>Daily Log</h2>
-          <textarea id="log-entry" placeholder="Write your daily progress..."></textarea>
-          <button onclick="submitLog()">Submit Log</button>
-        </div>
-
-        <!-- Time Tracking Section -->
-        <div class="time-tracking">
-          <h2>Time Tracking</h2>
-          <p>Logged Hours: <span id="logged-hours">0</span> hours</p>
-          <button onclick="logTime()">Log Time</button>
-        </div>
-
-        <!-- Upcoming Tasks Section -->
-        <div class="upcoming-tasks">
-          <h2>Upcoming Tasks</h2>
-          <ul id="upcoming-tasks-list">
-            <!-- Dynamic content for upcoming tasks -->
-          </ul>
-        </div>
-      </section>
-
-      <!-- Sidebar with Quick Links and Resources -->
-      <aside class="sidebar">
-        <h3>Quick Links</h3>
-        <ul>
-          <li><a href="#">Profile</a></li>
-          <li><a href="#">Learning Resources</a></li>
-          <li><a href="#">Feedback</a></li>
-        </ul>
-        <h3>Learning Resources</h3>
-        <ul>
-          <li><a href="#">Resource 1</a></li>
-          <li><a href="#">Resource 2</a></li>
-          <li><a href="#">Resource 3</a></li>
-        </ul>
-      </aside>
-    </main>
-
-    <!-- Footer with support and legal information -->
-    <footer>
-      <p>Contact Support: <a href="mailto:support@example.com">support@example.com</a></p>
-      <p>&copy; 2025 Attachee Dashboard | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
-    </footer>
-  </div>
-
+    <!-- Bootstrap JS & dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
+
 <script>
-// Sample tasks and upcoming tasks for the dashboard
-const tasks = [
-  { name: "Task 1", status: "In Progress", deadline: "2025-01-30" },
-  { name: "Task 2", status: "Pending", deadline: "2025-02-10" },
-  { name: "Task 3", status: "Completed", deadline: "2025-01-20" }
-];
+    // Toggle Sidebar
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const topNavBar = document.getElementById('topNavBar');
+    const menuIcon = document.getElementById('menuIcon');
 
-const upcomingTasks = [
-  { name: "Task 4", deadline: "2025-02-15" },
-  { name: "Task 5", deadline: "2025-02-20" }
-];
+    menuIcon.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        mainContent.classList.toggle('expanded');
+        topNavBar.classList.toggle('expanded');
+    });
 
-// Function to display current tasks on the dashboard
-function displayTasks() {
-  const taskList = document.getElementById("task-list");
-  taskList.innerHTML = "";
-
-  tasks.forEach((task) => {
-    const taskItem = document.createElement("li");
-    taskItem.innerHTML = `
-      <div><strong>${task.name}</strong></div>
-      <div>Status: ${task.status}</div>
-      <div>Deadline: ${task.deadline}</div>
-    `;
-    taskList.appendChild(taskItem);
-  });
-}
-
-// Function to display upcoming tasks
-function displayUpcomingTasks() {
-  const upcomingTasksList = document.getElementById("upcoming-tasks-list");
-  upcomingTasksList.innerHTML = "";
-
-  upcomingTasks.forEach((task) => {
-    const taskItem = document.createElement("li");
-    taskItem.innerHTML = `
-      <div><strong>${task.name}</strong></div>
-      <div>Deadline: ${task.deadline}</div>
-    `;
-    upcomingTasksList.appendChild(taskItem);
-  });
-}
-
-// Function to submit the daily log
-function submitLog() {
-  const logEntry = document.getElementById("log-entry").value;
-  if (logEntry) {
-    alert("Log Submitted: " + logEntry);
-    document.getElementById("log-entry").value = ""; // Clear the log entry field
-  } else {
-    alert("Please enter something in your daily log.");
-  }
-}
-
-// Function to log time
-let loggedHours = 0;
-function logTime() {
-  loggedHours += 1; // Simulate logging 1 hour each time
-  document.getElementById("logged-hours").textContent = loggedHours;
-}
-
-// Initialize the dashboard with tasks and upcoming tasks
-document.addEventListener("DOMContentLoaded", function () {
-  displayTasks();
-  displayUpcomingTasks();
-});
-
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
 </script>
+
+</html>

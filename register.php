@@ -1,12 +1,6 @@
 <?php
-// Include MongoDB connection
-include_once './conn.php'; // Ensure this includes the MongoDB connection logic
-
-// Check if the collection is properly initialized
-if (!$usersCollection) {
-    echo "Error: MongoDB collection not found!";
-    exit;
-}
+// Include MySQL connection
+include_once 'conn.php';  // Make sure conn.php contains the correct MySQLi connection
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Retrieve form data from POST request
@@ -33,15 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Check if email already exists in MongoDB
-    try {
-        $existingUser = $usersCollection->findOne(['email' => $email]);
-        if ($existingUser) {
-            echo "Email is already registered.";
-            exit;
-        }
-    } catch (Exception $e) {
-        echo "Error with MongoDB query: " . $e->getMessage();
+    // Check if email already exists in MySQL database using MySQLi
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);  
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        echo "Email is already registered.";
         exit;
     }
 
@@ -49,33 +42,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     // Assign default role as 'User'
-    $role = 'User'; // Default role is User, can be changed later by Admin
+    $role = 'User'; 
 
-    // Prepare user data for MongoDB insertion
-    $userDocument = [
-        'username' => $username,
-        'email' => $email,
-        'password' => $hashedPassword,
-        'role' => $role,  // Add role field
-    ];
+    // Prepare user data for MySQL insertion using MySQLi
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $username, $email, $hashedPassword, $role); // Bind parameters
+    $stmt->execute();
 
-    // Insert the user into the MongoDB collection
-    try {
-        $insertResult = $usersCollection->insertOne($userDocument);
-
-        if ($insertResult->getInsertedCount() == 1) {
-            // Registration successful, redirect to login page
-            header('Location: ./index.php'); // Assuming 'login.php' is your login page
-            exit;  // Make sure to call exit after header redirection to prevent further code execution
-        } else {
-            echo "Error during registration.";
-        }
-    } catch (Exception $e) {
-        echo "Error: " . $e->getMessage();
-        exit;
+    if ($stmt->affected_rows == 1) {
+        header('Location: ./index.php'); 
+        exit;  
+    } else {
+        echo "Error during registration.";
     }
 } else {
     echo "Invalid request method.";
 }
-
 ?>

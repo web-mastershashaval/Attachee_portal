@@ -1,7 +1,7 @@
 <?php 
 // Include the database connection
-include_once "./conn.php"; 
-include_once "./supavisor/header.php";
+include_once "../conn.php"; 
+include_once "../supavisor/header.php";
 $user_id = 1; // Example: Replace with actual logged-in user ID
 if (isset($_POST['login'])) {
     $updateStatusQuery = "UPDATE users SET status = 'Online' WHERE id = $user_id";
@@ -179,10 +179,9 @@ if (isset($_POST['logout'])) {
                 </div>
                 
     <ul>
-        <li class="nav-item"><a class="nav-link" href="./supavisor/sp_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="./supavisor/sp_dashboard.php#reports"><i class="fas fa-chart-line"></i> Reports</a></li>
-        <li class="nav-item"><a class="nav-link" href="./supavisor/sp_dashboard.php#projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
-        <li class="nav-item"><a class="nav-link" href="./supavisor/sp_dashboard.php#users"><i class="fas fa-user"></i> Users</a></li>
+        <li class="nav-item"><a class="nav-link" href="./dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="./dashboard.php#tasks"><i class="fas fa-tasks"></i> MyTasks</a></li>
+        <li class="nav-item"><a class="nav-link" href="./dashboard.php#projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
         <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-bell"></i> Notifications</a></li>
         <li class="nav-item"><a class="nav-link" href="message.php"><i class="fas fa-envelope"></i> Messages</a></li>
         <li class="nav-item"><a class="nav-link" href="./settings.php"><i class="fas fa-cogs"></i> Settings</a></li>
@@ -219,7 +218,7 @@ if (isset($_POST['logout'])) {
 <script>
     // Fetch active users every 3 seconds
     function fetchActiveUsers() {
-        fetch('get_active_users.php')
+        fetch('../get_active_users.php')
             .then(response => response.json())
             .then(data => {
                 let userList = '';

@@ -1,11 +1,12 @@
 <?php
-include_once "./conn.php";
+include_once './conn.php';  // Ensure this file contains the correct MySQL connection
+
 // Start session to handle user authentication
 session_start();
 
-// Check if the MongoDB collection is initialized
-if (!$usersCollection) {
-    echo "Error: MongoDB collection not found!";
+// Check if the MySQL connection is established
+if (!$conn) {
+    echo "Error: MySQL connection failed!";
     exit;
 }
 
@@ -20,24 +21,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Query MongoDB to check if the user exists
+    // Query MySQL to check if the user exists
     try {
-        $user = $usersCollection->findOne(['email' => $email]);
+        // Prepare the statement to fetch the user based on email
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);  // Bind email parameter
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Debugging: Check if the query returns any rows
+        // var_dump($result);  // Uncomment to check the result
 
         // If user exists, verify the password
-        if ($user) {
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+
+            // Debugging: Output the user data
+            // var_dump($user);  // Uncomment to check the fetched user data
+
+            // Verify password
             if (password_verify($password, $user['password'])) {
                 // Successful login, start the session and store user info
-                $_SESSION['user_id'] = (string) $user['_id'];  // Store the user ID in session
-                $_SESSION['email'] = $user['email'];           // Store the user email
-                $_SESSION['role'] = $user['role'];             // Store the user role (Admin or User)
+                $_SESSION['user_id'] = $user['id'];      // Store the user ID in session
+                $_SESSION['email'] = $user['email'];     // Store the user email
+                $_SESSION['role'] = $user['role'];       // Store the user role (Admin or User)
 
                 // Redirect based on user role
-                if ($user['role'] == 'Admin') {
-                    header('Location: admin_dashboard.php');  // Redirect to Admin dashboard
+                if ($user['role'] == 'admin') {
+                    // Admin role redirection
+                    header('Location: ./supavisor/sp_dashboard.php');  // Redirect to Admin dashboard
                     exit;
                 } else {
-                    header('Location: /supavisor/sp_dashboard.php');   // Redirect to User dashboard
+                    // User role redirection
+                    header('Location: ./attachee/dashboard.php');   // Redirect to User dashboard
                     exit;
                 }
             } else {
@@ -46,8 +62,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             echo "No account found with that email.";
         }
+
+        // Close statement
+        $stmt->close();
+
     } catch (Exception $e) {
-        echo "Error with MongoDB query: " . $e->getMessage();
+        echo "Error with MySQL query: " . $e->getMessage();
         exit;
     }
 } else {

@@ -1,6 +1,6 @@
 <?php
-include_once "./conn.php";
-include_once "./supavisor/header.php";
+include_once "../conn.php";
+include_once "../supavisor/header.php";
 
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
@@ -208,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settings'])) {
             </div>
         </div>
     </div>
-  <a href="./supavisor/sp_dashboard.php"> Go Back</a>
+  <a href="./dashboard.php"> Go Back</a>
 </body>
 </html>
 

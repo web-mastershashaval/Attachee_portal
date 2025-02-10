@@ -55,7 +55,7 @@
   <button type="submit" class="btn btn-primary w-100">Register</button>
 
   <div class="link-signup">
-        <span>Already have an account? <a href="login.php">Sign In</a></span>
+        <span>Already have an account? <a href="index.php">Sign In</a></span>
     </div>
 </form>
   </div>

@@ -1,102 +1,149 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Ensure Composer's autoload file is included
-require dirname(__FILE__) . '/../vendor/autoload.php';
-
-// Use the MongoDB BSON ObjectID class for MongoDB document IDs
-use MongoDB\BSON\ObjectID;
-use MongoDB\Client;
-
-// Start the session to access session variables
+// Start the session to track user activities
 session_start();
 
-// Create a new MongoDB client instance
-$mongoClient = new Client("mongodb://localhost:27017");  // Ensure MongoDB is running on localhost
+// Include the database connection
+include('../conn.php');
 
-// Select the 'portal' database (replace 'portal' with your database name if it's different)
-$database = $mongoClient->portal;  
+// Function to log activity in the database
+function log_activity($user, $action, $details) {
+    global $conn;  // Access the global database connection
 
-// Select the 'users' collection (replace 'users' with your collection name if needed)
-$usersCollection = $database->users;  
+    // Prepare the SQL statement to insert a new log entry
+    $stmt = $conn->prepare("INSERT INTO activity_logs (user, action, details) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $user, $action, $details); // Bind parameters to the prepared statement
 
-// Verify the connection and collection setup
-if (!$usersCollection) {
-    echo "Error: MongoDB collection not found!";
-    exit;  // Stop script execution if collection is not found
+    // Execute the statement
+    $stmt->execute();
+
+    // Close connections
+    $stmt->close();
 }
 
-// Check if the user is logged in (session variable is set)
+// Check if the user is logged in (using session)
 if (isset($_SESSION['user_id'])) {
     $userId = $_SESSION['user_id'];
 
-    // Debugging: Check if user_id is correctly set
-    echo "Session User ID: " . $userId . "<br>";
+    // Sanitize the user input to prevent SQL injection
+    $userId = $conn->real_escape_string($userId);
 
-    // Validate that user_id is a valid 24-character hexadecimal string (ObjectID format)
-    if (preg_match('/^[a-f0-9]{24}$/', $userId)) {
-        try {
-            // Create a MongoDB ObjectID from the session user_id
-            $objectId = new ObjectID($userId);
-            echo "MongoDB ObjectID: " . $objectId . "<br>";
+    // Fetch user data from the database
+    $sql = "SELECT * FROM users WHERE id = '$userId'";
+    $result = $conn->query($sql);
 
-            // Fetch the user's data from the MongoDB collection
-            $user = $usersCollection->findOne(['_id' => $objectId]);
+    if ($result->num_rows > 0) {
+        // Fetch user data
+        $user = $result->fetch_assoc();
+        $username = $user['username'];
+        $email = $user['email'];
 
-            if ($user) {
-                // If the user is found, assign the values
-                $username = $user['username'];
-                $email = $user['email'];
-                echo "Username: " . $username . "<br>";
-                echo "Email: " . $email . "<br>";
-            } else {
-                // If the user is not found in the database
-                echo "User not found.<br>";
-            }
-        } catch (Exception $e) {
-            // Catch any MongoDB related exceptions and print the error
-            echo "Error with MongoDB query: " . $e->getMessage();
-            exit;
-        }
+        // Log the activity: User logged in
+        log_activity($username, 'Login', 'User logged into the system.');
+
+        // Display user information
+        echo "Username: " . htmlspecialchars($username) . "<br>";
+        echo "Email: " . htmlspecialchars($email) . "<br>";
+
     } else {
-        echo "Invalid user ID format.<br>";
-        exit;
+        echo "User not found.<br>";
     }
 } else {
     // If the user is not logged in, redirect to the login page
     header('Location: login.php');
     exit;
 }
+// Query to fetch the user data including profile_picture
+$query = "SELECT username, email, profile_picture FROM users WHERE id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param('i', $user_id);
+$stmt->execute();
+$stmt->bind_result($username, $email, $profile_picture);
+$stmt->fetch();
+$stmt->close();
 
-// Select the 'interns' collection (replace 'interns' with your collection name if needed)
-$internsCollection = $database->interns;
+// If the user has a profile picture, display it; otherwise, use a default image
+$profile_picture_path = (!empty($profile_picture)) ? "uploads/profile_pictures/$profile_picture" : "../img/gtr.jpg"; // Default image if no picture is set
 
-// Fetch the list of interns/attachees from the collection
-$interns = $internsCollection->find();
+// Handle form submission for adding an intern
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize form inputs to prevent SQL injection
+    $first_name = $conn->real_escape_string($_POST['first_name']);
+    $last_name = $conn->real_escape_string($_POST['last_name']);
+    $id_no = $conn->real_escape_string($_POST['id_no']);
+    $role = $conn->real_escape_string($_POST['role']);
+    $gender = $conn->real_escape_string($_POST['gender']);
+    $faculty = $conn->real_escape_string($_POST['faculty']);
+    $contact_start = $conn->real_escape_string($_POST['contact_start']);
+    $contact_end = $conn->real_escape_string($_POST['contact_end']);
 
-// Debug: Check if the query returned any results
-if ($interns->isDead()) {
-    echo "No interns found in the collection.<br>";
-} else {
-    echo "Intern data fetched successfully.<br>";
+    // Check if all fields are filled
+    if (empty($first_name) || empty($last_name) || empty($id_no) || empty($role) || empty($gender) || empty($faculty) || empty($contact_start) || empty($contact_end)) {
+        echo "Please fill all required fields.";
+        exit;
+    }
+
+    // SQL query to insert intern data
+    $sql = "INSERT INTO interns (first_name, last_name, id_no, role, gender, faculty, contact_start, contact_end)
+            VALUES ('$first_name', '$last_name', '$id_no', '$role', '$gender', '$faculty', '$contact_start', '$contact_end')";
+
+    if ($conn->query($sql) === TRUE) {
+        // Log the activity: Added a new intern
+        log_activity($username, 'Add Intern', 'Added new intern: ' . $first_name . ' ' . $last_name);
+
+        // Redirect to the dashboard (or you can choose to stay on the same page)
+        header('Location: sp_dashboard.php');
+        exit;
+    } else {
+        echo "Error: " . $conn->error;
+    }
 }
 
-// Prepare the data for displaying
+// Handle intern deletion
+if (isset($_GET['delete_intern_id'])) {
+    // Sanitize the intern ID to prevent SQL injection
+    $intern_id = $conn->real_escape_string($_GET['delete_intern_id']);
+
+    // Fetch the intern's name before deleting for logging purposes
+    $sql = "SELECT first_name, last_name FROM interns WHERE id = '$intern_id'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $intern = $result->fetch_assoc();
+        $intern_name = $intern['first_name'] . ' ' . $intern['last_name'];
+
+        // SQL query to delete the intern
+        $sql = "DELETE FROM interns WHERE id = '$intern_id'";
+
+        if ($conn->query($sql) === TRUE) {
+            // Log the activity: Deleted an intern
+            log_activity($username, 'Delete Intern', 'Deleted intern: ' . $intern_name);
+
+            // Redirect back to the dashboard
+            header('Location: sp_dashboard.php');
+            exit;
+        } else {
+            echo "Error: " . $conn->error;
+        }
+    } else {
+        echo "Intern not found.<br>";
+    }
+}
+
+// Fetch interns from the database
 $internsData = [];
-foreach ($interns as $intern) {
-    $internsData[] = [
-        'first_name' => $intern['first_name'],
-        'last_name' => $intern['last_name'],
-        'id_no' => $intern['id_no'],
-        'role' => $intern['role'],
-        'gender' => $intern['gender'],
-        'project' => $intern['project'],
-        'faculty' => $intern['faculty'],
-        'contact_start' => $intern['contact_start'],
-        'contact_end' => $intern['contact_end'],
-    ];
+$sql = "SELECT * FROM interns";
+$internsResult = $conn->query($sql);
+
+// Check if there are any interns
+if ($internsResult->num_rows > 0) {
+    // Fetch interns data
+    while ($intern = $internsResult->fetch_assoc()) {
+        $internsData[] = $intern;
+    }
+} else {
+    echo "No interns found in the database.<br>";
 }
 
-
+// Close the database connection
+$conn->close();
 ?>

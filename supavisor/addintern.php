@@ -1,36 +1,32 @@
 <?php
-require '/var/www/html/Attachee_web_system/vendor/autoload.php';
+include"../conn.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data
-    $firstName = $_POST['first_name'];
-    $lastName = $_POST['last_name'];
-    $idNo = $_POST['id_no'];
-    $role = $_POST['role'];
-    $gender = $_POST['gender'];
-    $faculty = $_POST['faculty'];
-    $contactStart = $_POST['contact_start'];
-    $contactEnd = $_POST['contact_end'];
+// Check if form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize and get form inputs
+    $first_name = $conn->real_escape_string($_POST['first_name']);
+    $last_name = $conn->real_escape_string($_POST['last_name']);
+    $id_no = $conn->real_escape_string($_POST['id_no']);
+    $role = $conn->real_escape_string($_POST['role']);
+    $gender = $conn->real_escape_string($_POST['gender']);
+    $faculty = $conn->real_escape_string($_POST['faculty']);
+    $contact_start = $conn->real_escape_string($_POST['contact_start']);
+    $contact_end = $conn->real_escape_string($_POST['contact_end']);
 
-    // Connect to MongoDB
-    $client = new MongoDB\Client("mongodb://localhost:27017");
-    $database = $client->selectDatabase('portal');
-    $internsCollection = $database->selectCollection('interns');
+    // SQL query to insert data into the interns table
+    $sql = "INSERT INTO interns (first_name, last_name, id_no, role, gender, faculty, contact_start, contact_end)
+            VALUES ('$first_name', '$last_name', '$id_no', '$role', '$gender', '$faculty', '$contact_start', '$contact_end')";
 
-    // Insert the new intern
-    $insertResult = $internsCollection->insertOne([
-        'first_name' => $firstName,
-        'last_name' => $lastName,
-        'id_no' => $idNo,
-        'role' => $role,
-        'gender' => $gender,
-        'faculty' => $faculty,
-        'contact_start' => $contactStart,
-        'contact_end' => $contactEnd,
-        'project' => null // No project assigned initially
-    ]);
+    // Execute the query and check for success
+    if ($conn->query($sql) === TRUE) {
+        echo "New intern added successfully!";
+        // Optionally redirect to a page to avoid re-submission if the page is refreshed
+        // header('Location: success_page.php');
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
 
-    // Redirect to the page after insertion (or return JSON for AJAX)
-    header('Location: sp_dashboard.php'); // Change this to your desired redirect
+    // Close the connection
+    $conn->close();
 }
 ?>
