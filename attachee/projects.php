@@ -1,71 +1,67 @@
 <?php
+
+
 // Include the database connection
-include('../conn.php');  // Ensure the correct path to your connection file
+include('../conn.php');  // Ensure this path is correct for the connection file
 
-// Check if the database connection is successful
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Check if the user ID (user_id) is stored in the session
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];  // Get the logged-in user's ID
 
-// Check if an 'id_no' is passed in the URL (using GET method)
-if (isset($_GET['id_no']) && !empty($_GET['id_no'])) {
-    $id_no = $_GET['id_no'];
-
-    // SQL query to fetch the intern's project information based on the id_no
+    // SQL query to fetch the intern's assigned projects based on the user ID
     $sql = "SELECT 
-                interns.id_no, 
+                projects.id AS project_id,
                 projects.name AS project_name, 
                 projects.deadline, 
                 projects.status, 
-                interns.faculty 
-            FROM interns
-            LEFT JOIN projects ON interns.project_id = projects.id
-            WHERE interns.id_no = ?";  // Use a parameterized query for security
+                interns.faculty
+            FROM projects 
+            JOIN interns ON projects.id = interns.project_id
+            JOIN users ON users.id = interns.user_id  
+            WHERE interns.user_id = ?";  // Using parameterized query to prevent SQL injection
 
     // Prepare the statement to prevent SQL injection
     if ($stmt = $conn->prepare($sql)) {
-        // Bind the parameter
-        $stmt->bind_param("s", $id_no);  // "s" denotes a string parameter
+        // Bind the user's ID to the query
+        $stmt->bind_param("i", $user_id);  // "i" denotes an integer parameter for user_id
 
         // Execute the query
-        $stmt->execute();
+        if ($stmt->execute()) {
+            // Get the result
+            $result = $stmt->get_result();
 
-        // Get the result
-        $result = $stmt->get_result();
+            // Check if there are any results (assigned projects)
+            if ($result->num_rows > 0) {
+                // Loop through the results and display them in the table
+                while ($project = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . htmlspecialchars($user_id) . "</td>";  // Displaying user_id
+                    echo "<td>" . htmlspecialchars($project['project_name']) . "</td>";
 
-        // Check if there are any results
-        if ($result && $result->num_rows > 0) {
-            // Loop through the results and display them in the table
-            while ($intern = $result->fetch_assoc()) {
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($intern['id_no']) . "</td>";
-                echo "<td>" . (isset($intern['project_name']) ? htmlspecialchars($intern['project_name']) : 'No Project Assigned') . "</td>";
-                
-                // Format the deadline if available
-                $deadline = isset($intern['deadline']) ? date('Y-m-d', strtotime($intern['deadline'])) : 'N/A';
-                echo "<td>" . htmlspecialchars($deadline) . "</td>";
-                
-                // Display the project status
-                echo "<td>" . (isset($intern['status']) ? htmlspecialchars($intern['status']) : 'N/A') . "</td>";
-                
-                echo "<td>" . htmlspecialchars($intern['faculty']) . "</td>";
-                echo "<td><a href='edit_intern.php?id_no=" . urlencode($intern['id_no']) . "'>View</a></td>";
-                echo "</tr>";
+                    // Format the deadline if available
+                    $deadline = isset($project['deadline']) ? date('Y-m-d', strtotime($project['deadline'])) : 'N/A';
+                    echo "<td>" . htmlspecialchars($deadline) . "</td>";
+
+                    // Display the project status
+                    echo "<td>" . (isset($project['status']) ? htmlspecialchars($project['status']) : 'N/A') . "</td>";
+
+                    echo "<td>" . htmlspecialchars($project['faculty']) . "</td>";
+                    echo "<td><a href='view_project.php?id=" . urlencode($project['project_id']) . "'>View</a></td>";
+                    echo "</tr>";
+                }
+            } else {
+                echo "<tr><td colspan='6'>No projects assigned to this intern.</td></tr>";
             }
         } else {
-            // No results found for the specific intern, display a message
-            echo "<tr><td colspan='7'>No projects found for this intern.</td></tr>";
+            echo "<tr><td colspan='6'>Error executing query: " . $stmt->error . "</td></tr>";
         }
 
-        // Close the statement
         $stmt->close();
     } else {
-        // If the SQL query failed to prepare
-        echo "<tr><td colspan='7'>Error in SQL query preparation.</td></tr>";
+        echo "<tr><td colspan='6'>Error preparing the SQL statement: " . $conn->error . "</td></tr>";
     }
 } else {
-    // If no 'id_no' is provided in the URL, display a message
-    echo "<tr><td colspan='7'>No intern specified.</td></tr>";
+    echo "<tr><td colspan='6'>You must be logged in to view your projects.</td></tr>";
 }
 
 // Close the database connection

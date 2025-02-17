@@ -1,101 +1,100 @@
-<?php include_once  "./conn.php" ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/styles/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/styles/css/bootstrap-reboot.min.css"> 
-    <title>Sign In</title>
+    <title>Login</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Styling for the overall page */
-        body {
-            background-color: #f0f0f5; /* Soft background color */
-            font-family: Arial, sans-serif;
-        }
-
-        .form-container {
-            background-color: #ffffff; /* White background for the form */
-            padding: 3rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
+        /* Custom CSS to center the login form */
+        .login-container {
             max-width: 400px;
-            margin: auto;
-            margin-top: 5%;
+            margin: 50px auto;
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-
-        .form-control {
-            width: 100%; /* Make input fields take up the full width of the container */
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1rem; /* Adds space between the input fields */
-        }
-
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+        .form-group label {
+            font-weight: 600;
         }
 
         .btn-primary {
-            border-radius: 8px;
-            font-size: 1.1rem;
-            padding: 12px;
-            margin-top: 1rem; 
+            background-color: #007bff;
+            border-color: #007bff;
         }
 
-        .d-grid {
-            margin-top: 1rem;
-            margin-left: 155px; 
-        }
-
-        .link-signup {
-            display: block;
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        .link-signup a {
-            text-decoration: none;
-            color: #007bff;
-        }
-
-        .link-signup a:hover {
-            text-decoration: underline;
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
         }
     </style>
+    <script>
+        // JavaScript to toggle the fields based on selected login type
+        function toggleLoginFields() {
+            var loginType = document.querySelector('input[name="login_type"]:checked').value;
+
+            // Show/hide fields based on login type
+            if (loginType == 'user') {
+                document.getElementById('email').required = true;
+                document.getElementById('id_no').required = false;
+                document.getElementById('email').style.display = 'block';
+                document.getElementById('id_no').style.display = 'none';
+            } else {
+                document.getElementById('email').required = false;
+                document.getElementById('id_no').required = true;
+                document.getElementById('email').style.display = 'none';
+                document.getElementById('id_no').style.display = 'block';
+            }
+        }
+
+        // Set the initial state of the form
+        window.onload = function() {
+            toggleLoginFields(); // Call on page load to set the correct visibility and requirements
+        };
+    </script>
 </head>
 <body>
+    <div class="container login-container">
+        <h2 class="text-center mb-4">Login</h2>
+        <!-- Login Form -->
+        <form method="POST" action="tester.php">
+            <!-- Choose Login Type -->
+            <div class="form-group mb-4">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="login_type" value="user" checked onclick="toggleLoginFields()">
+                    <label class="form-check-label">User Login</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="login_type" value="intern" onclick="toggleLoginFields()">
+                    <label class="form-check-label">Intern Login</label>
+                </div>
+            </div>
 
-<form action="./tester.php" method="POST" class="form-container">
-    <h2>Sign In</h2>
-    <div class="mb-3">
-        <input type="email" name="email" class="form-control" id="useremail" placeholder="Email" required> 
-    </div>
-    <div class="mb-3">
-        <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
-    </div>
-    <div class="d-grid gap-1">
-        <button type="submit" class="btn btn-primary">Sign In</button>
-    </div>
-    <div class="link-signup">
-        <span>Don't have an account? <a href="signup.php">Sign Up</a></span>
-    </div>
-</form>
+            <!-- Email or Intern ID (show one at a time) -->
+            <div class="form-group mb-4">
+                <label for="email" class="form-label">Email:</label>
+                <input type="text" name="email" id="email" class="form-control" placeholder="Enter your email">
+                
+                <label for="id_no" class="form-label mt-3">Intern ID:</label>
+                <input type="text" name="id_no" id="id_no" class="form-control" placeholder="Enter your intern ID" style="display: none;">
+            </div>
 
+            <!-- Password -->
+            <div class="form-group mb-4">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
+            </div>
 
-    <!-- Bootstrap JavaScript Bundle (includes Popper.js) -->
-    <script src="/styles/js/bootstrap.bundle.min.js"></script>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <li>Have no Account ? `<a href="signup.php"> signup</a></li>
+        </form>
+    </div>
+
+    <!-- Bootstrap 5 JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

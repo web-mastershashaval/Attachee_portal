@@ -44,7 +44,7 @@ include_once "./header.php";
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="#notifications">
                             <i class="fas fa-bell"></i> Notifications
                         </a>
                     </li>
@@ -76,23 +76,23 @@ include_once "./header.php";
                     </div>
                 </div>
                 <div class="col"><h2>Intern/Attachee Management Dashboard</h2></div>
-                
+                <?php include"totaldes.php";?>
                 <div class="row mt-5">
                     <div class="col-sm-3 content-col bg-primary text-white">
                         <h6>Total Interns</h6>
-                        <h5>25</h5>
+                        <h5><?php echo $total_interns; ?></h5>
                     </div>
                     <div class="col-sm-3 content-col bg-success text-white">
                         <h6>Active Tasks</h6>
-                        <h5>22</h5>
+                        <h5><?php echo $active_tasks; ?></h5>
                     </div>
                     <div class="col-sm-3 content-col bg-warning text-dark">
                         <h6>Upcoming Tasks</h6>
-                        <h5>6</h5>
+                        <h5><?php echo $upcoming_tasks; ?></h5>
                     </div>
                     <div class="col-sm-3 content-col bg-danger text-white">
                         <h6>Pending Approvals</h6>
-                        <h5>2</h5>
+                        <h5><?php echo $pending_approvals; ?></h5>
                     </div>
                 </div>
                 
@@ -158,6 +158,8 @@ include_once "./header.php";
                 <h4>Projects</h4>
                 <!-- Display the data -->
                 <button id="addProjectBtn" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProjectModal">Add Project</button>
+                <a href="assign_tasks.php" class="btn btn-info" role="button">AssignTasks</a>
+                <a href="add_tasks.php" class="btn btn-info" role="button">Add Task</a>
                     <!-- Display success or error messages -->
                     <?php if ($errorMessage): ?>
                         <div class="alert alert-danger" role="alert">
@@ -234,7 +236,15 @@ include_once "./header.php";
 </table>
     </div>
     </div>
+    
     </div>
+    <!-- Notifications Section -->
+<div class="col"><h2 id="notifications" class="headings">Notifications</h2></div>
+                <div class="table-container mt-4">
+                    <ul id="notification-list">
+                        <!-- Notifications will be appended here -->
+                    </ul>
+                </div>
     </div>
     
 
@@ -310,6 +320,8 @@ include_once "./header.php";
         </div>
     </div>
 </div>
+
+
 
 <?php
 // Include the database connection
@@ -515,6 +527,47 @@ var addProjectModal = new bootstrap.Modal(document.getElementById('addProjectMod
 addProjectBtn.addEventListener('click', function() {
     addProjectModal.show();  // This opens the modal programmatically
 });
+
+function fetchNotifications() {
+        fetch('notify.php')  // Replace with the correct PHP script to fetch notifications
+            .then(response => response.json())
+            .then(data => {
+                const notificationList = document.getElementById('notification-list');
+                notificationList.innerHTML = '';  // Clear previous notifications
+                data.forEach(notification => {
+                    const li = document.createElement('li');
+                    li.classList.add('notification');
+                    li.innerHTML = notification.message;
+                    li.addEventListener('click', function() {
+                        markAsRead(notification.id);
+                    });
+                    notificationList.appendChild(li);
+                });
+            })
+            .catch(error => console.log('Error fetching notifications:', error));
+    }
+
+    function markAsRead(notificationId) {
+        fetch('mark_as_read.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ notification_id: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Notification marked as read', data);
+            fetchNotifications();  // Refresh notifications list
+        })
+        .catch(error => console.log('Error marking notification as read:', error));
+    }
+
+    // Fetch notifications every 5 seconds
+    setInterval(fetchNotifications, 5000);
+    // Fetch notifications initially
+    fetchNotifications();
+
 
     </script>
 

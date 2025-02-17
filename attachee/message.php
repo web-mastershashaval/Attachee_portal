@@ -173,7 +173,7 @@ if (isset($_POST['logout'])) {
 <!-- Sidebar -->
 <div class="sidebar">
 <div class="profile mb-3">
-                    <img id="profile-img" src="../img/back.png" alt="profile">
+                    <img id="profile-img" src="../uploads/profile_pictures/<?php echo htmlspecialchars($profile_picture); ?>" alt="profile">
                     <h4 id="user-name" class="ms-3"><?php echo htmlspecialchars($username); ?></h4>
                     <h6 id="user-email"><?php echo htmlspecialchars($email); ?></h6>
                 </div>

@@ -8,25 +8,30 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Assuming user_id is stored in the session after login
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;  // Added null check to prevent undefined index errors
 
-// Fetch the user's current settings from the database
-$sql = "SELECT * FROM user_settings WHERE user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('i', $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+if ($user_id) {
+    // Fetch the user's current settings from the database
+    $sql = "SELECT * FROM user_settings WHERE user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    $user_settings = $result->fetch_assoc();
-    $selected_theme = $user_settings['theme'];
-    $username = $user_settings['username'];
-    $email = $user_settings['email'];
+    if ($result->num_rows > 0) {
+        $user_settings = $result->fetch_assoc();
+        $selected_theme = $user_settings['theme'];
+        $username = $user_settings['username'];
+        $email = $user_settings['email'];
+    } else {
+        // Default values if no settings are saved yet
+        $selected_theme = 'light-mode';
+        $username = '';
+        $email = '';
+        echo "<div class='alert alert-warning'>No settings found for this user. Please update your settings.</div>";
+    }
 } else {
-    // Default values if no settings are saved yet
-    $selected_theme = 'light-mode';
-    $username = '';
-    $email = '';
+    echo "<div class='alert alert-danger'>User not logged in!</div>";
 }
 
 // Handle theme change form submission
@@ -56,7 +61,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settings'])) {
     // Handle profile picture upload
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == 0) {
         $upload_dir = 'uploads/profile_pictures/'; // Directory where profile pictures will be stored
-        $file_name = basename($_FILES['profile_picture']['name']);
+
+        // Ensure directory exists and create if not
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);  // Create the directory if it doesn't exist
+        }
+
+        // Ensure the file name is unique (e.g., prepend with timestamp)
+        $file_name = time() . '-' . basename($_FILES['profile_picture']['name']);
         $file_path = $upload_dir . $file_name;
         
         // Check if the file is an image (Optional but recommended)
@@ -96,8 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_settings'])) {
         echo "<div class='alert alert-danger'>Error: " . $conn->error . "</div>";
     }
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

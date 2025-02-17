@@ -5,20 +5,22 @@ session_start(); // Start the session
 // Check if the user is logged in by verifying the session variable
 if (!isset($_SESSION['user_id'])) {
     // Redirect to login page if the user is not logged in
-    header("Location: login.php");
+    header("Location: ../index.php");
     exit();
 }
+
+// Initialize error or success messages if necessary
+$errorMessage = '';
 include "../supavisor/header.php";
 include "tasks.php";
+include "notify.php";
 // Retrieve user data from session, with fallbacks in case they aren't set
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Guest';  // Fallback if username is not set
 $email = isset($_SESSION['email']) ? $_SESSION['email'] : 'No email provided'; // Fallback if email is not set
-$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default.jpg'; // Fallback if profile picture is not set
+$profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'img.png'; // Fallback if profile picture is not set
 
-// Debugging - check the session contents
-// echo '<pre>';
-// var_dump($_SESSION); // Prints all session data for debugging
-// echo '</pre>';
+
+
 ?>
 
 <!DOCTYPE html>
@@ -161,62 +163,51 @@ $profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_pict
                         </tbody>
                     </table>
                 </div>
-                <!-- Projects Section -->
-                <div class="col"><h2 id="projects" class="headings">My Projects</h2></div>
-                <div class="table-container mt-4">
-                <?php
-                    // Initialize error and success message variables
-                    $errorMessage = '';
-                    $successMessage = '';
 
-                    // Your existing PHP logic here, where you might set these variables
-                    // For example, if you have some conditions for success or failure, you can assign values to them:
+<!-- Projects Section -->
+<div class="col">
+    <h2 id="projects" class="headings">My Projects</h2>
+</div>
 
-                    // Example of setting the variables
-                    if (isset($someConditionThatFails)) {
-                        $errorMessage = "There was an error processing your request.";
-                    }
+<div class="table-container mt-4">
+    <?php
+        // Display error or success messages
+        if (!empty($errorMessage)) {
+            echo "<div class='alert alert-danger' role='alert'>" . htmlspecialchars($errorMessage) . "</div>";
+        }
+    ?>
 
-                    if (isset($someConditionThatSucceeds)) {
-                        $successMessage = "Your action was successful!";
-                    }
-                    ?>
-                                        <!-- Display success or error messages -->
-                    <?php if ($errorMessage): ?>
-                        <div class="alert alert-danger" role="alert">
-                            <?= htmlspecialchars($errorMessage); ?>
-                        </div>
-                    <?php endif; ?>
-                    <?php if ($successMessage): ?>
-                        <div class="alert alert-success" role="alert">
-                            <?= htmlspecialchars($successMessage); ?>
-                        </div>
-                    <?php endif; ?>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Id No</th>
-                            <th>Project Name</th>
-                            <th>Deadline</th>
-                            <th>Status</th>
-                            <th>Faculty</th>
-                            <th>Actions</th> 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php include "projects.php"; ?>
-                    </tbody>
-                </table>
+    <!-- Table for displaying projects -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id No</th>
+                <th>Project Name</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Faculty</th>
+                <th>Actions</th> 
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Fetch and display the intern's projects based on the logged-in intern's id_no
+            include "projects.php";  // Include the PHP script to fetch and display projects
+            ?>
+        </tbody>
+    </table>
+</div>
+
+
 
                 <!-- Notifications Section -->
                 <div class="col"><h2 id="notifications" class="headings">Notifications</h2></div>
                 <div class="table-container mt-4">
-                    <ul>
-                        <!-- Replace with PHP to display notifications -->
-                        <li>New task assigned: Task 1</li>
-                        <li>Project update: Project 2 completed</li>
+                    <ul id="notification-list">
+                        <!-- Notifications will be appended here -->
                     </ul>
                 </div>
+
             </div>
         </div>
     </div>
@@ -247,6 +238,50 @@ $profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_pict
             }
         });
     });
+
+
+
+    function fetchNotifications() {
+        fetch('notify.php')  // Replace with the correct PHP script to fetch notifications
+            .then(response => response.json())
+            .then(data => {
+                const notificationList = document.getElementById('notification-list');
+                notificationList.innerHTML = '';  // Clear previous notifications
+                data.forEach(notification => {
+                    const li = document.createElement('li');
+                    li.classList.add('notification');
+                    li.innerHTML = notification.message;
+                    li.addEventListener('click', function() {
+                        markAsRead(notification.id);
+                    });
+                    notificationList.appendChild(li);
+                });
+            })
+            .catch(error => console.log('Error fetching notifications:', error));
+    }
+
+    function markAsRead(notificationId) {
+        fetch('mark_as_read.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ notification_id: notificationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Notification marked as read', data);
+            fetchNotifications();  // Refresh notifications list
+        })
+        .catch(error => console.log('Error marking notification as read:', error));
+    }
+
+    // Fetch notifications every 5 seconds
+    setInterval(fetchNotifications, 5000);
+    // Fetch notifications initially
+    fetchNotifications();
+
+
 </script>
 
 </html>
